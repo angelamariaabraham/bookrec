@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "424315029386",
+    "project_id": "book-recommendation-ce8cc",
+    "storage_bucket": "book-recommendation-ce8cc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424315029386:android:02d5bc2a103f699c9baa73",
+        "android_client_info": {
+          "package_name": "com.example.book_fusion_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD11QROeIYIMNIxWFnRgY1zzjNsnzrOzhU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

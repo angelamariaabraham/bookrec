@@ -1,0 +1,259 @@
+{
+  "total_books": 1971,
+  "html_tags_count": 0,
+  "urls_count": 0,
+  "short_desc_count": 0,
+  "missing_fields_count": 1971,
+  "top_weird_chars": [
+    {
+      "char": "\u2019",
+      "unicode": "U+2019",
+      "count": 1572
+    },
+    {
+      "char": "\u2014",
+      "unicode": "U+2014",
+      "count": 1129
+    },
+    {
+      "char": "\u201c",
+      "unicode": "U+201C",
+      "count": 170
+    },
+    {
+      "char": "\u00e9",
+      "unicode": "U+00E9",
+      "count": 159
+    },
+    {
+      "char": "\u2026",
+      "unicode": "U+2026",
+      "count": 145
+    },
+    {
+      "char": "\u2013",
+      "unicode": "U+2013",
+      "count": 135
+    },
+    {
+      "char": "\u00e1",
+      "unicode": "U+00E1",
+      "count": 71
+    },
+    {
+      "char": "\u00c2",
+      "unicode": "U+00C2",
+      "count": 52
+    },
+    {
+      "char": "\u00b7",
+      "unicode": "U+00B7",
+      "count": 46
+    },
+    {
+      "char": "\u00ed",
+      "unicode": "U+00ED",
+      "count": 42
+    },
+    {
+      "char": "\u2018",
+      "unicode": "U+2018",
+      "count": 41
+    },
+    {
+      "char": "\u00c5",
+      "unicode": "U+00C5",
+      "count": 34
+    },
+    {
+      "char": "\u00f3",
+      "unicode": "U+00F3",
+      "count": 33
+    },
+    {
+      "char": "\u0131",
+      "unicode": "U+0131",
+      "count": 31
+    },
+    {
+      "char": "\u00e0",
+      "unicode": "U+00E0",
+      "count": 30
+    },
+    {
+      "char": "\u00e8",
+      "unicode": "U+00E8",
+      "count": 29
+    },
+    {
+      "char": "\u00e7",
+      "unicode": "U+00E7",
+      "count": 25
+    },
+    {
+      "char": "\u00e3",
+      "unicode": "U+00E3",
+      "count": 22
+    },
+    {
+      "char": "\u00fc",
+      "unicode": "U+00FC",
+      "count": 21
+    },
+    {
+      "char": "\u2022",
+      "unicode": "U+2022",
+      "count": 19
+    },
+    {
+      "char": "\u00c4",
+      "unicode": "U+00C4",
+      "count": 19
+    },
+    {
+      "char": "\u00f6",
+      "unicode": "U+00F6",
+      "count": 15
+    },
+    {
+      "char": "\u00ea",
+      "unicode": "U+00EA",
+      "count": 14
+    },
+    {
+      "char": "\u00e4",
+      "unicode": "U+00E4",
+      "count": 13
+    },
+    {
+      "char": "\u201a",
+      "unicode": "U+201A",
+      "count": 11
+    },
+    {
+      "char": "\u00fa",
+      "unicode": "U+00FA",
+      "count": 11
+    },
+    {
+      "char": "\u00eb",
+      "unicode": "U+00EB",
+      "count": 10
+    },
+    {
+      "char": "\u00be",
+      "unicode": "U+00BE",
+      "count": 9
+    },
+    {
+      "char": "\u00e2",
+      "unicode": "U+00E2",
+      "count": 9
+    },
+    {
+      "char": "\u00f1",
+      "unicode": "U+00F1",
+      "count": 9
+    },
+    {
+      "char": "\u00bd",
+      "unicode": "U+00BD",
+      "count": 9
+    },
+    {
+      "char": "\u00a1",
+      "unicode": "U+00A1",
+      "count": 9
+    },
+    {
+      "char": "\u00ef",
+      "unicode": "U+00EF",
+      "count": 8
+    },
+    {
+      "char": "\u011f",
+      "unicode": "U+011F",
+      "count": 8
+    },
+    {
+      "char": "\u015f",
+      "unicode": "U+015F",
+      "count": 8
+    },
+    {
+      "char": "\u00df",
+      "unicode": "U+00DF",
+      "count": 7
+    },
+    {
+      "char": "\u2015",
+      "unicode": "U+2015",
+      "count": 6
+    },
+    {
+      "char": "\u2122",
+      "unicode": "U+2122",
+      "count": 6
+    },
+    {
+      "char": "\u00c9",
+      "unicode": "U+00C9",
+      "count": 6
+    },
+    {
+      "char": "\u00ac",
+      "unicode": "U+00AC",
+      "count": 5
+    },
+    {
+      "char": "\u203a",
+      "unicode": "U+203A",
+      "count": 5
+    },
+    {
+      "char": "\u00a2",
+      "unicode": "U+00A2",
+      "count": 5
+    },
+    {
+      "char": "\u00f5",
+      "unicode": "U+00F5",
+      "count": 5
+    },
+    {
+      "char": "\u00f9",
+      "unicode": "U+00F9",
+      "count": 4
+    },
+    {
+      "char": "\u25b6",
+      "unicode": "U+25B6",
+      "count": 4
+    },
+    {
+      "char": "\u00ba",
+      "unicode": "U+00BA",
+      "count": 4
+    },
+    {
+      "char": "\u00bc",
+      "unicode": "U+00BC",
+      "count": 3
+    },
+    {
+      "char": "\u201e",
+      "unicode": "U+201E",
+      "count": 3
+    },
+    {
+      "char": "\u00a5",
+      "unicode": "U+00A5",
+      "count": 3
+    },
+    {
+      "char": "\u00ad",
+      "unicode": "U+00AD",
+      "count": 2
+    }
+  ]
+}

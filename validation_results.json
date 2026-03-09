@@ -1,0 +1,188 @@
+{
+  "summary": {
+    "multiple_spaces": 0,
+    "leading_trailing_spaces": 0,
+    "html_remnants": 0,
+    "bracket_remnants": 20,
+    "suspicious_patterns": 66,
+    "uncapitalized_sentences": 193,
+    "missing_punctuation_at_end": 174
+  },
+  "unusual_characters": [
+    {
+      "char": "\u00b7",
+      "unicode": "U+00B7",
+      "count": 46
+    },
+    {
+      "char": "\u0131",
+      "unicode": "U+0131",
+      "count": 31
+    },
+    {
+      "char": "\u2022",
+      "unicode": "U+2022",
+      "count": 19
+    },
+    {
+      "char": "\u00be",
+      "unicode": "U+00BE",
+      "count": 9
+    },
+    {
+      "char": "\u00bd",
+      "unicode": "U+00BD",
+      "count": 9
+    },
+    {
+      "char": "\u00a1",
+      "unicode": "U+00A1",
+      "count": 9
+    },
+    {
+      "char": "\u011f",
+      "unicode": "U+011F",
+      "count": 8
+    },
+    {
+      "char": "\u015f",
+      "unicode": "U+015F",
+      "count": 8
+    },
+    {
+      "char": "\u2015",
+      "unicode": "U+2015",
+      "count": 6
+    },
+    {
+      "char": "\u2122",
+      "unicode": "U+2122",
+      "count": 6
+    },
+    {
+      "char": "\u00ac",
+      "unicode": "U+00AC",
+      "count": 5
+    },
+    {
+      "char": "\u203a",
+      "unicode": "U+203A",
+      "count": 5
+    },
+    {
+      "char": "\u00a2",
+      "unicode": "U+00A2",
+      "count": 5
+    },
+    {
+      "char": "\u25b6",
+      "unicode": "U+25B6",
+      "count": 4
+    },
+    {
+      "char": "\u00ba",
+      "unicode": "U+00BA",
+      "count": 4
+    },
+    {
+      "char": "\u00bc",
+      "unicode": "U+00BC",
+      "count": 3
+    },
+    {
+      "char": "\u201e",
+      "unicode": "U+201E",
+      "count": 3
+    },
+    {
+      "char": "\u00a5",
+      "unicode": "U+00A5",
+      "count": 3
+    },
+    {
+      "char": "\u00ad",
+      "unicode": "U+00AD",
+      "count": 2
+    },
+    {
+      "char": "\u2032",
+      "unicode": "U+2032",
+      "count": 2
+    },
+    {
+      "char": "\u2021",
+      "unicode": "U+2021",
+      "count": 2
+    },
+    {
+      "char": "\u00bf",
+      "unicode": "U+00BF",
+      "count": 2
+    },
+    {
+      "char": "\u00ae",
+      "unicode": "U+00AE",
+      "count": 2
+    },
+    {
+      "char": "\u00a4",
+      "unicode": "U+00A4",
+      "count": 2
+    },
+    {
+      "char": "\u017e",
+      "unicode": "U+017E",
+      "count": 1
+    },
+    {
+      "char": "\u00bb",
+      "unicode": "U+00BB",
+      "count": 1
+    },
+    {
+      "char": "\u00ab",
+      "unicode": "U+00AB",
+      "count": 1
+    },
+    {
+      "char": "\ufb02",
+      "unicode": "U+FB02",
+      "count": 1
+    },
+    {
+      "char": "\u0153",
+      "unicode": "U+0153",
+      "count": 1
+    },
+    {
+      "char": "\u00b6",
+      "unicode": "U+00B6",
+      "count": 1
+    },
+    {
+      "char": "\u21d2",
+      "unicode": "U+21D2",
+      "count": 1
+    },
+    {
+      "char": "\u00a9",
+      "unicode": "U+00A9",
+      "count": 1
+    },
+    {
+      "char": "\u02c6",
+      "unicode": "U+02C6",
+      "count": 1
+    },
+    {
+      "char": "\u00af",
+      "unicode": "U+00AF",
+      "count": 1
+    },
+    {
+      "char": "\ufeff",
+      "unicode": "U+FEFF",
+      "count": 1
+    }
+  ]
+}
