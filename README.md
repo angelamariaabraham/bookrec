@@ -1,4 +1,4 @@
-# book_fusion_mobile
+# book_fusion
 
 A new Flutter project.
 
