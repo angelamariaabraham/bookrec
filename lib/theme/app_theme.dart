@@ -8,7 +8,7 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       colorScheme: const ColorScheme.light(
-        primary: Color(0xFFA78BFA), // Soft Purple
+        primary: Color(0xFF81D4FA), // Sky Blue
         secondary: Color(0xFF81D4FA), // Sky Blue
         surface: Color(0xFFFFFFFF), // White cards
         surfaceContainerHighest: Color(0xFFF0EFE9), // Slightly darker panels
@@ -43,7 +43,7 @@ class AppTheme {
         color: Colors.white,
         elevation: 8,
         shadowColor: const Color(
-          0xFFA78BFA,
+          0xFF81D4FA,
         ).withValues(alpha: 0.15), // Diffuse pastel shadow
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
@@ -64,12 +64,12 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(32),
-          borderSide: BorderSide(color: const Color(0xFFA78BFA), width: 2),
+          borderSide: BorderSide(color: const Color(0xFF81D4FA), width: 2),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFA78BFA),
+          backgroundColor: const Color(0xFF81D4FA),
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(

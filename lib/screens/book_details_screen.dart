@@ -86,7 +86,7 @@ class BookDetailsScreen extends StatelessWidget {
                     'by ${book.author ?? "Unknown Author"}',
                     style: GoogleFonts.inter(
                       fontSize: 18,
-                      color: theme.colorScheme.primary,
+                      color: theme.colorScheme.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
