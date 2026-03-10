@@ -410,9 +410,14 @@ class AppDrawer extends StatelessWidget {
               state.userName ?? 'Guest',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            accountEmail: const Text('Member since Jan 2026'),
-            currentAccountPicture: const CircleAvatar(
-              backgroundImage: NetworkImage('https://i.pravatar.cc/150'),
+            accountEmail: null,
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white.withValues(alpha: 0.2),
+              child: const Icon(
+                Icons.person_rounded,
+                size: 40,
+                color: Colors.white,
+              ),
             ),
           ),
           ListTile(
