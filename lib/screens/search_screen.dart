@@ -50,10 +50,17 @@ class _SearchScreenState extends State<SearchScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _searchResults.isEmpty && _searchController.text.isNotEmpty
           ? const Center(child: Text('No books found.'))
-          : ListView.builder(
+          : GridView.builder(
+              padding: const EdgeInsets.all(16.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 0.6,
+                crossAxisSpacing: 16.0,
+                mainAxisSpacing: 16.0,
+              ),
               itemCount: _searchResults.length,
               itemBuilder: (context, index) {
-                return BookListTile(book: _searchResults[index]);
+                return BookCard(book: _searchResults[index]);
               },
             ),
     );

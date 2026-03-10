@@ -60,7 +60,14 @@ class _ShelfList extends StatelessWidget {
       );
     }
 
-    return ListView.builder(
+    return GridView.builder(
+      padding: const EdgeInsets.all(16.0),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        childAspectRatio: 0.6,
+        crossAxisSpacing: 16.0,
+        mainAxisSpacing: 16.0,
+      ),
       itemCount: shelfBooks.length,
       itemBuilder: (context, index) {
         final shelfEntry = shelfBooks[index];
@@ -71,7 +78,7 @@ class _ShelfList extends StatelessWidget {
           orElse: () => state.books.first,
         );
 
-        return BookListTile(book: book);
+        return BookCard(book: book);
       },
     );
   }

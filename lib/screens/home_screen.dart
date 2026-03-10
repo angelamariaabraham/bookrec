@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../providers/app_state.dart';
 import '../models/book.dart';
 import 'book_details_screen.dart';
+import 'category_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -127,11 +128,17 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              sliver: SliverList(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 0.6,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                ),
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final book = state.books[index + 10];
-                  return BookListTile(book: book);
+                  return BookCard(book: book);
                 }, childCount: 15),
               ),
             ),
@@ -238,16 +245,6 @@ class CategoryRow extends StatelessWidget {
         'color': const Color(0xFFE57373),
       },
       {
-        'icon': Icons.menu_book_rounded,
-        'label': 'eBooks',
-        'color': const Color(0xFF81D4FA),
-      },
-      {
-        'icon': Icons.headphones_rounded,
-        'label': 'Audio',
-        'color': const Color(0xFFB5A1E5),
-      },
-      {
         'icon': Icons.auto_awesome_rounded,
         'label': 'Fiction',
         'color': const Color(0xFFFFB6B9),
@@ -262,6 +259,16 @@ class CategoryRow extends StatelessWidget {
         'label': 'Fantasy',
         'color': const Color(0xFF81D4FA),
       },
+      {
+        'icon': Icons.psychology_rounded,
+        'label': 'Mystery',
+        'color': const Color(0xFFB5A1E5),
+      },
+      {
+        'icon': Icons.rocket_launch_rounded,
+        'label': 'Sci-Fi',
+        'color': const Color(0xFFFF8A65),
+      },
     ];
 
     return SizedBox(
@@ -274,120 +281,43 @@ class CategoryRow extends StatelessWidget {
           final cat = categories[index];
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 64,
-                  height: 64,
-                  decoration: BoxDecoration(
-                    color: (cat['color'] as Color).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(24),
+            child: InkWell(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        CategoryScreen(category: cat['label'] as String),
                   ),
-                  child: Icon(
-                    cat['icon'] as IconData,
-                    color: cat['color'] as Color,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  cat['label'] as String,
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class BookListTile extends StatelessWidget {
-  final Book book;
-  const BookListTile({super.key, required this.book});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: InkWell(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BookDetailsScreen(book: book),
-          ),
-        ),
-        borderRadius: BorderRadius.circular(20),
-        child: Row(
-          children: [
-            Container(
-              width: 70,
-              height: 100,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                image: DecorationImage(
-                  image: NetworkImage(
-                    book.coverImageUrl ?? 'https://via.placeholder.com/70x100',
-                  ),
-                  fit: BoxFit.cover,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.brightness == Brightness.light
-                        ? Colors.black.withValues(alpha: 0.1)
-                        : Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
+                );
+              },
+              borderRadius: BorderRadius.circular(24),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    book.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    book.author ?? 'Unknown Author',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                      fontWeight: FontWeight.w600,
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: (cat['color'] as Color).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Icon(
+                      cat['icon'] as IconData,
+                      color: cat['color'] as Color,
+                      size: 28,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star_rounded,
-                        color: Color(0xFFFFC107),
-                        size: 18,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        book.rating ?? '0.0',
-                        style: theme.textTheme.labelSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    cat['label'] as String,
+                    style: Theme.of(context).textTheme.labelSmall,
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

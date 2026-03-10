@@ -131,4 +131,33 @@ class DatabaseService {
     );
     return result.map((json) => Book.fromJson(json)).toList();
   }
+
+  Future<List<Book>> getBooksByCategory(String category) async {
+    if (category.toLowerCase() == 'all') {
+      return getAllBooks();
+    }
+
+    String searchQuery = category;
+    if (category.toLowerCase() == 'sci-fi') {
+      searchQuery = 'Science Fiction';
+    }
+
+    if (kIsWeb) {
+      final books = await getAllBooks();
+      final lowercaseCategory = searchQuery.toLowerCase();
+      return books
+          .where(
+            (b) =>
+                (b.genres?.toLowerCase().contains(lowercaseCategory) ?? false),
+          )
+          .toList();
+    }
+    final db = await instance.database;
+    final result = await db.query(
+      'books',
+      where: 'genres LIKE ?',
+      whereArgs: ['%$searchQuery%'],
+    );
+    return result.map((json) => Book.fromJson(json)).toList();
+  }
 }
