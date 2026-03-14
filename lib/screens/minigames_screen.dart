@@ -20,6 +20,25 @@ class MinigamesScreen extends StatelessWidget {
                 floating: false,
                 pinned: true,
                 backgroundColor: Colors.transparent,
+                leading: Navigator.canPop(context)
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.arrow_back_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ),
+                      )
+                    : null,
                 flexibleSpace: FlexibleSpaceBar(
                   title: Text(
                     'Minigames Hub',

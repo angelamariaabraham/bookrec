@@ -74,6 +74,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  color: theme.colorScheme.onSurface,
+                ),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(32.0),

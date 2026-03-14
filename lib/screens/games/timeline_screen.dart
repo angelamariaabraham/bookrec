@@ -14,7 +14,7 @@ class TimelineScreen extends StatefulWidget {
 }
 
 class _TimelineScreenState extends State<TimelineScreen> {
-  Map<String, dynamic>? _gameData;
+  Map<dynamic, dynamic>? _gameData;
   List<Map<String, dynamic>> _currentItems = [];
   int _score = 0;
   bool _answered = false;
@@ -40,7 +40,7 @@ class _TimelineScreenState extends State<TimelineScreen> {
   void _submitOrder() {
     if (_gameData == null || _answered) return;
 
-    final correctIds = _gameData!['correct_order_ids'] as List<int>;
+    final correctIds = _gameData!['correct_order_ids'] as List;
     final currentIds = _currentItems
         .map((e) => (e['book'] as Book).id)
         .toList();
@@ -77,11 +77,30 @@ class _TimelineScreenState extends State<TimelineScreen> {
     }
 
     final theme = Theme.of(context);
-    final correctIds = _gameData!['correct_order_ids'] as List<int>;
+    final correctIds = _gameData!['correct_order_ids'] as List;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        leading: Navigator.canPop(context)
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              )
+            : null,
         title: const Text(
           'Timeline Tool',
           style: TextStyle(color: Colors.white),

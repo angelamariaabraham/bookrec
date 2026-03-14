@@ -24,12 +24,44 @@ class BookDetailsScreen extends StatelessWidget {
           SliverAppBar(
             expandedHeight: 400.0,
             pinned: true,
+            leading: Navigator.canPop(context)
+                ? Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.3),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                  )
+                : null,
             flexibleSpace: FlexibleSpaceBar(
-              background: Hero(
-                tag: 'book-${book.id}',
-                child: Image.network(
-                  book.coverImageUrl ?? 'https://via.placeholder.com/400',
-                  fit: BoxFit.cover,
+              background: Container(
+                color: theme.scaffoldBackgroundColor,
+                child: Center(
+                  child: Hero(
+                    tag: 'book-${book.id}',
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 48.0, bottom: 16.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16.0),
+                        child: Image.network(
+                          book.coverImageUrl ??
+                              'https://via.placeholder.com/400',
+                          fit: BoxFit.contain,
+                          height: 320,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -47,7 +79,7 @@ class BookDetailsScreen extends StatelessWidget {
                         child: Text(
                           book.title,
                           style: GoogleFonts.outfit(
-                            fontSize: 28,
+                            fontSize: 32,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -85,7 +117,7 @@ class BookDetailsScreen extends StatelessWidget {
                   Text(
                     'by ${book.author ?? "Unknown Author"}',
                     style: GoogleFonts.inter(
-                      fontSize: 18,
+                      fontSize: 20,
                       color: theme.colorScheme.onSurface,
                       fontWeight: FontWeight.w500,
                     ),
@@ -96,7 +128,7 @@ class BookDetailsScreen extends StatelessWidget {
                   Text(
                     'Description',
                     style: GoogleFonts.inter(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -105,7 +137,7 @@ class BookDetailsScreen extends StatelessWidget {
                     book.description ?? 'No description available.',
                     style: GoogleFonts.inter(
                       height: 1.5,
-                      color: Colors.grey[300],
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -114,7 +146,7 @@ class BookDetailsScreen extends StatelessWidget {
                   Text(
                     'Similar Books',
                     style: GoogleFonts.inter(
-                      fontSize: 20,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
                   ),

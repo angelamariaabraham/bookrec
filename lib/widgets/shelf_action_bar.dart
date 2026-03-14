@@ -20,7 +20,10 @@ class _ShelfActionBarState extends State<ShelfActionBar> {
     required Color activeColor,
     required VoidCallback onTap,
   }) {
-    final color = isSelected ? activeColor : Colors.grey[400];
+    final theme = Theme.of(context);
+    final color = isSelected
+        ? activeColor
+        : theme.colorScheme.onSurface.withValues(alpha: 0.6);
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -51,6 +54,7 @@ class _ShelfActionBarState extends State<ShelfActionBar> {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
+    final theme = Theme.of(context);
     if (!state.isLoggedIn) {
       return const SizedBox.shrink(); // hide if not logged in
     }
@@ -62,15 +66,11 @@ class _ShelfActionBarState extends State<ShelfActionBar> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
-        color: const Color(0xFF2C3440), // Letterboxd similar dark slate
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.primary.withValues(alpha: 0.1),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -84,7 +84,7 @@ class _ShelfActionBarState extends State<ShelfActionBar> {
                     : Icons.visibility_outlined,
                 label: 'Read',
                 isSelected: currentStatus == 'read',
-                activeColor: const Color(0xFF00E054), // Vibrant green
+                activeColor: const Color(0xFF80CBC4), // Soft pastel teal
                 onTap: () {
                   if (currentStatus == 'read') {
                     state.removeBookFromShelf(widget.bookId);
@@ -130,12 +130,19 @@ class _ShelfActionBarState extends State<ShelfActionBar> {
             ],
           ),
           const SizedBox(height: 16),
-          const Divider(color: Colors.white24, height: 1),
+          Divider(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.05),
+            height: 1,
+          ),
           const SizedBox(height: 12),
           Text(
             'Rate',
             textAlign: TextAlign.center,
-            style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 14),
+            style: GoogleFonts.inter(
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 4),
           Row(
@@ -169,8 +176,8 @@ class _ShelfActionBarState extends State<ShelfActionBar> {
                   child: Icon(
                     isFilled ? Icons.star : Icons.star_border,
                     color: isFilled
-                        ? const Color(0xFF00E054)
-                        : Colors.grey[600],
+                        ? const Color(0xFF80CBC4)
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.1),
                     size: 36,
                   ),
                 ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_state.dart';
 import 'home_screen.dart';
 import 'search_screen.dart';
 import 'my_shelf_screen.dart';
@@ -12,8 +14,6 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _currentIndex = 0;
-
   final List<Widget> _screens = [
     const HomeScreen(),
     const SearchScreen(),
@@ -23,10 +23,11 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final state = context.watch<AppState>();
     final theme = Theme.of(context);
 
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(index: state.selectedTabIndex, children: _screens),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -38,11 +39,13 @@ class _MainLayoutState extends State<MainLayout> {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: _currentIndex,
+          currentIndex: state.selectedTabIndex,
           onTap: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
+            // If leaving the search tab (index 1), try to save the current query
+            if (state.selectedTabIndex == 1 && index != 1) {
+              // Logic handled inside SearchScreen via FocusNode
+            }
+            state.setSelectedTabIndex(index);
           },
           type: BottomNavigationBarType.fixed,
           backgroundColor: theme.colorScheme.surface,

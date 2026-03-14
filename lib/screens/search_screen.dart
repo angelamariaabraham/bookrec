@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/book.dart';
+import '../providers/app_state.dart';
 import '../services/database_service.dart';
 import 'home_screen.dart';
+import 'category_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -12,10 +17,36 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final _searchController = TextEditingController();
+  final _focusNode = FocusNode();
   List<Book> _searchResults = [];
   bool _isSearching = false;
 
-  void _onSearchChanged(String query) async {
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus) {
+        final query = _searchController.text.trim();
+        if (query.isNotEmpty) {
+          context.read<AppState>().addRecentSearch(query);
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _focusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+
     if (query.isEmpty) {
       setState(() {
         _searchResults = [];
@@ -25,44 +56,391 @@ class _SearchScreenState extends State<SearchScreen> {
     }
 
     setState(() => _isSearching = true);
-    final results = await DatabaseService.instance.searchBooks(query);
-    setState(() {
-      _searchResults = results;
-      _isSearching = false;
+
+    _debounce = Timer(const Duration(milliseconds: 300), () async {
+      final results = await DatabaseService.instance.searchBooks(query.trim());
+      if (!mounted) return;
+
+      setState(() {
+        _searchResults = results;
+        _isSearching = false;
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
-      appBar: AppBar(
-        title: TextField(
-          controller: _searchController,
-          autofocus: true,
-          decoration: const InputDecoration(
-            hintText: 'Search by title or author...',
-            border: InputBorder.none,
-          ),
-          onChanged: _onSearchChanged,
+      backgroundColor: theme.colorScheme.surface,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Custom App Bar Area
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    onPressed: () {
+                      // Save current unsubmitted search before we leave
+                      final query = _searchController.text.trim();
+                      if (query.isNotEmpty) {
+                        context.read<AppState>().addRecentSearch(query);
+                      }
+
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      } else {
+                        context.read<AppState>().setSelectedTabIndex(0);
+                      }
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Search',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 8.0,
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  ),
+                ),
+                child: TextField(
+                  controller: _searchController,
+                  focusNode: _focusNode,
+                  autofocus:
+                      false, // Don't snap keyboard immediately to show UI
+                  textInputAction: TextInputAction.search,
+                  onChanged: _onSearchChanged,
+                  onSubmitted: (query) {
+                    if (query.isNotEmpty && !mounted) return;
+                    context.read<AppState>().addRecentSearch(query);
+                    _onSearchChanged(query);
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search books, authors, genres...',
+                    hintStyle: TextStyle(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search_rounded,
+                      color: theme.colorScheme.primary,
+                    ),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.close_rounded, size: 20),
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.5,
+                            ),
+                            onPressed: () {
+                              _searchController.clear();
+                              _onSearchChanged('');
+                            },
+                          )
+                        : null,
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Content Area
+            Expanded(
+              child: _isSearching
+                  ? const Center(child: CircularProgressIndicator())
+                  : _searchController.text.isEmpty
+                  ? _buildEmptySearchState(theme)
+                  : _searchResults.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off_rounded,
+                            size: 64,
+                            color: theme.colorScheme.onSurface.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No books found',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : GridView.builder(
+                      padding: const EdgeInsets.all(24.0),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            childAspectRatio: 0.55,
+                            crossAxisSpacing: 12.0,
+                            mainAxisSpacing: 24.0,
+                          ),
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        return BookCard(
+                          book: _searchResults[index],
+                          onTap: () {
+                            final query = _searchController.text;
+                            if (query.isNotEmpty) {
+                              context.read<AppState>().addRecentSearch(query);
+                            }
+                          },
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
-      body: _isSearching
-          ? const Center(child: CircularProgressIndicator())
-          : _searchResults.isEmpty && _searchController.text.isNotEmpty
-          ? const Center(child: Text('No books found.'))
-          : GridView.builder(
-              padding: const EdgeInsets.all(16.0),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 0.6,
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
-              ),
-              itemCount: _searchResults.length,
-              itemBuilder: (context, index) {
-                return BookCard(book: _searchResults[index]);
-              },
+    );
+  }
+
+  // Exploratory initial state when not searching
+  Widget _buildEmptySearchState(ThemeData theme) {
+    final recentSearches = context.watch<AppState>().recentSearches;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 120,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              children: [
+                _buildGenreCard(
+                  'Fantasy',
+                  Icons.auto_awesome_rounded,
+                  Colors.blueAccent,
+                  theme,
+                ),
+                _buildGenreCard(
+                  'Sci-Fi',
+                  Icons.rocket_launch_rounded,
+                  Colors.purpleAccent,
+                  theme,
+                ),
+                _buildGenreCard(
+                  'Mystery',
+                  Icons.search_rounded,
+                  Colors.tealAccent,
+                  theme,
+                ),
+                _buildGenreCard(
+                  'Romance',
+                  Icons.favorite_rounded,
+                  Colors.pinkAccent,
+                  theme,
+                ),
+                _buildGenreCard(
+                  'Thriller',
+                  Icons.visibility_rounded,
+                  Colors.orangeAccent,
+                  theme,
+                ),
+              ],
             ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            'Recent Searches',
+            style: GoogleFonts.outfit(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (recentSearches.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Text(
+                'No recent searches yet.',
+                style: GoogleFonts.inter(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            )
+          else
+            Column(
+              children: recentSearches
+                  .map((query) => _buildRecentSearchItem(query, theme))
+                  .toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentSearchItem(String query, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: InkWell(
+        onTap: () {
+          _searchController.text = query;
+          _onSearchChanged(query);
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: theme.colorScheme.outline.withValues(alpha: 0.05),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.history_rounded,
+                  size: 18,
+                  color: theme.colorScheme.primary.withValues(alpha: 0.6),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  query,
+                  style: GoogleFonts.inter(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close_rounded, size: 18),
+                onPressed: () {
+                  context.read<AppState>().removeRecentSearch(query);
+                },
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGenreCard(
+    String label,
+    IconData icon,
+    Color color,
+    ThemeData theme,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 16),
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CategoryScreen(category: label),
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          width: 140,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [color.withValues(alpha: 0.8), color],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.3),
+                blurRadius: 12,
+                spreadRadius: 1,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -10,
+                bottom: -10,
+                child: Icon(
+                  icon,
+                  size: 80,
+                  color: Colors.white.withValues(alpha: 0.15),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(icon, size: 20, color: Colors.white),
+                    ),
+                    Text(
+                      label,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

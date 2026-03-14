@@ -35,7 +35,15 @@ class _CategoryScreenState extends State<CategoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.category} Books')),
+      appBar: AppBar(
+        leading: Navigator.canPop(context)
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded),
+                onPressed: () => Navigator.pop(context),
+              )
+            : null,
+        title: Text('${widget.category} Books'),
+      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _books.isEmpty
@@ -43,9 +51,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
           : GridView.builder(
               padding: const EdgeInsets.all(16.0),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 0.6,
-                crossAxisSpacing: 16.0,
+                crossAxisCount: 4,
+                childAspectRatio: 0.55,
+                crossAxisSpacing: 12.0,
                 mainAxisSpacing: 16.0,
               ),
               itemCount: _books.length,

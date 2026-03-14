@@ -14,38 +14,40 @@ class HomeScreen extends StatelessWidget {
     final state = context.watch<AppState>();
     final theme = Theme.of(context);
     final featuredBooks = state.featuredBooks;
+    final announcement = state.currentAnnouncement;
 
     return Scaffold(
       drawer: const AppDrawer(),
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              backgroundColor: theme.scaffoldBackgroundColor,
-              elevation: 0,
-              pinned: true,
-              centerTitle: false,
-              title: Text(
-                'BookFusion',
-                style: GoogleFonts.outfit(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                  color: theme.colorScheme.onSurface,
-                ),
+        child: Column(
+          children: [
+            if (announcement != null)
+              AnnouncementBanner(
+                key: ValueKey(announcement['text'] ?? ''),
+                text: announcement['text'] ?? '',
+                type: announcement['type'] ?? 'info',
               ),
-              iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
-              actions: [
-                IconButton(
-                  icon: Icon(
-                    Icons.person_outline_rounded,
-                    color: theme.colorScheme.onSurface,
+            Expanded(
+              child: CustomScrollView(
+                slivers: [
+                  SliverAppBar(
+                    backgroundColor: theme.scaffoldBackgroundColor,
+                    elevation: 0,
+                    pinned: true,
+                    centerTitle: false,
+                    title: Text(
+                      'BookFusion',
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                        color: theme.colorScheme.onSurface,
+                      ),
+                    ),
+                    iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
+                    actions: const [],
                   ),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
+                  SliverToBoxAdapter(
+                    child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24.0,
                   vertical: 8.0,
@@ -56,10 +58,10 @@ class HomeScreen extends StatelessWidget {
                     FocusScope.of(context).unfocus();
                     Navigator.pushNamed(context, '/search');
                   },
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: 'Search books, authors...',
-                    prefixIcon: const Icon(Icons.search_rounded),
-                    suffixIcon: const Icon(Icons.tune_rounded), // Filter icon
+                    prefixIcon: Icon(Icons.search_rounded),
+                    suffixIcon: Icon(Icons.tune_rounded), // Filter icon
                   ),
                 ),
               ),
@@ -85,7 +87,10 @@ class HomeScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Popular Now', style: theme.textTheme.titleLarge),
+                    Text(
+                      'Hidden Gems & Classics',
+                      style: theme.textTheme.titleLarge,
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(right: 24.0),
                       child: TextButton(
@@ -124,16 +129,19 @@ class HomeScreen extends StatelessWidget {
                   left: 24.0,
                   bottom: 16.0,
                 ),
-                child: Text('New Arrivals', style: theme.textTheme.titleLarge),
+                child: Text(
+                  'Curated For You',
+                  style: theme.textTheme.titleLarge,
+                ),
               ),
             ),
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               sliver: SliverGrid(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  childAspectRatio: 0.6,
-                  crossAxisSpacing: 16.0,
+                  crossAxisCount: 4,
+                  childAspectRatio: 0.55,
+                  crossAxisSpacing: 12.0,
                   mainAxisSpacing: 16.0,
                 ),
                 delegate: SliverChildBuilderDelegate((context, index) {
@@ -146,6 +154,9 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+    ],
+  ),
+),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.pushNamed(context, '/minigames'),
         label: const Text(
@@ -164,7 +175,9 @@ class HomeScreen extends StatelessWidget {
 
 class BookCard extends StatelessWidget {
   final Book book;
-  const BookCard({super.key, required this.book});
+  final VoidCallback? onTap;
+
+  const BookCard({super.key, required this.book, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -173,12 +186,17 @@ class BookCard extends StatelessWidget {
       width: 160,
       margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       child: InkWell(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => BookDetailsScreen(book: book),
-          ),
-        ),
+        onTap: () {
+          if (onTap != null) {
+            onTap!();
+          }
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookDetailsScreen(book: book),
+            ),
+          );
+        },
         borderRadius: BorderRadius.circular(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,80 +258,112 @@ class CategoryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final categories = [
       {
-        'icon': Icons.grid_view_rounded,
-        'label': 'All',
-        'color': const Color(0xFFE57373),
-      },
-      {
         'icon': Icons.auto_awesome_rounded,
-        'label': 'Fiction',
-        'color': const Color(0xFFFFB6B9),
-      },
-      {
-        'icon': Icons.favorite_rounded,
-        'label': 'Romance',
-        'color': const Color(0xFFE57373),
-      },
-      {
-        'icon': Icons.shield_rounded,
         'label': 'Fantasy',
-        'color': const Color(0xFF81D4FA),
-      },
-      {
-        'icon': Icons.psychology_rounded,
-        'label': 'Mystery',
-        'color': const Color(0xFFB5A1E5),
+        'color': Colors.blueAccent,
       },
       {
         'icon': Icons.rocket_launch_rounded,
         'label': 'Sci-Fi',
-        'color': const Color(0xFFFF8A65),
+        'color': Colors.purpleAccent,
+      },
+      {
+        'icon': Icons.search_rounded,
+        'label': 'Mystery',
+        'color': Colors.tealAccent,
+      },
+      {
+        'icon': Icons.favorite_rounded,
+        'label': 'Romance',
+        'color': Colors.pinkAccent,
+      },
+      {
+        'icon': Icons.visibility_rounded,
+        'label': 'Thriller',
+        'color': Colors.orangeAccent,
       },
     ];
 
     return SizedBox(
-      height: 110,
+      height: 120,
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
         itemBuilder: (context, index) {
           final cat = categories[index];
+          final color = cat['color'] as Color;
+          final icon = cat['icon'] as IconData;
+          final label = cat['label'] as String;
+
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: const EdgeInsets.only(right: 16),
             child: InkWell(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        CategoryScreen(category: cat['label'] as String),
+                    builder: (context) => CategoryScreen(category: label),
                   ),
                 );
               },
               borderRadius: BorderRadius.circular(24),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: (cat['color'] as Color).withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Icon(
-                      cat['icon'] as IconData,
-                      color: cat['color'] as Color,
-                      size: 28,
-                    ),
+              child: Container(
+                width: 140,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [color.withValues(alpha: 0.8), color],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    cat['label'] as String,
-                    style: Theme.of(context).textTheme.labelSmall,
-                  ),
-                ],
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.3),
+                      blurRadius: 12,
+                      spreadRadius: 1,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: -10,
+                      bottom: -10,
+                      child: Icon(
+                        icon,
+                        size: 80,
+                        color: Colors.white.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(icon, size: 20, color: Colors.white),
+                          ),
+                          Text(
+                            label,
+                            style: GoogleFonts.outfit(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -395,6 +445,86 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+}
+
+class AnnouncementBanner extends StatefulWidget {
+  final String text;
+  final String type;
+
+  const AnnouncementBanner({
+    super.key,
+    required this.text,
+    required this.type,
+  });
+
+  @override
+  State<AnnouncementBanner> createState() => _AnnouncementBannerState();
+}
+
+class _AnnouncementBannerState extends State<AnnouncementBanner> {
+  bool _isDismissed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isDismissed) return const SizedBox.shrink();
+
+    Color color;
+    IconData icon;
+
+    switch (widget.type) {
+      case 'warning':
+        color = Colors.orange;
+        icon = Icons.warning_amber_rounded;
+        break;
+      case 'alert':
+        color = Colors.redAccent;
+        icon = Icons.error_outline_rounded;
+        break;
+      default:
+        color = Colors.blueAccent;
+        icon = Icons.info_outline_rounded;
+    }
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 8, 24, 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              widget.text,
+              style: GoogleFonts.outfit(
+                color: color.withValues(alpha: 0.9),
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          IconButton(
+            icon: Icon(Icons.close_rounded, color: color, size: 18),
+            onPressed: () => setState(() => _isDismissed = true),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            tooltip: 'Dismiss',
+          ),
         ],
       ),
     );

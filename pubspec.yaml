@@ -44,6 +44,7 @@ dependencies:
   firebase_core: ^4.4.0
   firebase_auth: ^6.1.4
   firebase_database: ^12.1.4
+  shared_preferences_windows: ^2.4.1
 
 dev_dependencies:
   flutter_test:

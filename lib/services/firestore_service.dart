@@ -45,6 +45,37 @@ class ReviewModel {
   }
 }
 
+class UserModel {
+  final String uid;
+  final String name;
+  final String email;
+  final String role; // 'admin' or 'user'
+
+  UserModel({
+    required this.uid,
+    required this.name,
+    required this.email,
+    required this.role,
+  });
+
+  factory UserModel.fromMap(String uid, Map<dynamic, dynamic> data) {
+    return UserModel(
+      uid: uid,
+      name: data['name'] ?? '',
+      email: data['email'] ?? '',
+      role: data['role'] ?? 'user',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'email': email,
+      'role': role,
+    };
+  }
+}
+
 class ShelfBookModel {
   final int bookId;
   final String status; // 'read', 'want_to_read', 'currently_reading'
@@ -135,6 +166,25 @@ class FirestoreService {
     });
   }
 
+  Stream<List<ReviewModel>> getReviewsForUser(String uid) {
+    return _db.ref('reviews').orderByChild('uid').equalTo(uid).onValue.map((
+      event,
+    ) {
+      final data = event.snapshot.value as Map<dynamic, dynamic>?;
+      if (data == null) return [];
+
+      final reviews = data.entries.map((e) {
+        return ReviewModel.fromMap(
+          e.key.toString(),
+          e.value as Map<dynamic, dynamic>,
+        );
+      }).toList();
+
+      reviews.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+      return reviews;
+    });
+  }
+
   // --- SHELVES ---
 
   Future<void> updateShelf({
@@ -186,5 +236,89 @@ class FirestoreService {
         );
       }).toList();
     });
+  }
+
+  // --- USER PROFILES ---
+
+  Future<void> saveUserProfile(UserModel user) async {
+    await _db.ref('users/${user.uid}/profile').set(user.toMap());
+  }
+
+  Future<UserModel?> getUserProfile(String uid) async {
+    final snapshot = await _db.ref('users/$uid/profile').get();
+    if (snapshot.exists) {
+      return UserModel.fromMap(uid, snapshot.value as Map<dynamic, dynamic>);
+    }
+    return null;
+  }
+
+  // --- ADMIN OPERATIONS ---
+
+  Future<void> updateUserRole(String uid, String newRole) async {
+    await _db.ref('users/$uid/profile').update({'role': newRole});
+  }
+
+  Future<void> setGlobalAnnouncement(String text, String type) async {
+    await _db.ref('system/announcement').set({
+      'text': text,
+      'type': type,
+      'timestamp': ServerValue.timestamp,
+    });
+  }
+
+  Future<void> clearGlobalAnnouncement() async {
+    await _db.ref('system/announcement').remove();
+  }
+
+  Stream<Map<dynamic, dynamic>?> getGlobalAnnouncement() {
+    return _db.ref('system/announcement').onValue.map((event) {
+      return event.snapshot.value as Map<dynamic, dynamic>?;
+    });
+  }
+
+  Future<void> deleteReview(String reviewId) async {
+    await _db.ref('reviews/$reviewId').remove();
+  }
+
+  Future<List<ReviewModel>> getAllReviews() async {
+    final snapshot = await _db.ref('reviews').get();
+    if (!snapshot.exists) return [];
+
+    final data = snapshot.value as Map<dynamic, dynamic>;
+    final reviews = data.entries.map((e) {
+      return ReviewModel.fromMap(
+        e.key.toString(),
+        e.value as Map<dynamic, dynamic>,
+      );
+    }).toList();
+
+    return reviews..sort((a, b) => b.timestamp.compareTo(a.timestamp));
+  }
+
+  Future<List<UserModel>> getAllUsers() async {
+    final snapshot = await _db.ref('users').get();
+    if (!snapshot.exists) return [];
+
+    final data = snapshot.value as Map<dynamic, dynamic>;
+    List<UserModel> users = [];
+
+    data.forEach((uid, userData) {
+      final userMap = userData as Map<dynamic, dynamic>;
+      final profile = userMap['profile'];
+      
+      if (profile != null) {
+        users.add(UserModel.fromMap(uid.toString(), profile as Map<dynamic, dynamic>));
+      } else {
+        // Fallback for users who have other data (like a shelf) but no profile yet
+        users.add(UserModel(
+          uid: uid.toString(),
+          name: 'Legacy User (${uid.toString().substring(0, 4)})',
+          email: 'N/A',
+          role: 'user',
+        ));
+      }
+    });
+
+    return users;
   }
 }

@@ -16,7 +16,7 @@ class CoverRevealScreen extends StatefulWidget {
 }
 
 class _CoverRevealScreenState extends State<CoverRevealScreen> {
-  Map<String, dynamic>? _gameData;
+  Map<dynamic, dynamic>? _gameData;
   int _score = 0;
   bool _answered = false;
   int? _selectedId;
@@ -127,6 +127,25 @@ class _CoverRevealScreenState extends State<CoverRevealScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        leading: Navigator.canPop(context)
+            ? Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              )
+            : null,
         title: const Text(
           'Cover Reveal',
           style: TextStyle(color: Colors.white),

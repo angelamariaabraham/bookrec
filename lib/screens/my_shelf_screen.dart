@@ -12,6 +12,16 @@ class MyShelfScreen extends StatelessWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_rounded),
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              } else {
+                context.read<AppState>().setSelectedTabIndex(0);
+              }
+            },
+          ),
           title: const Text('My Shelf'),
           bottom: const TabBar(
             tabs: [
@@ -63,9 +73,9 @@ class _ShelfList extends StatelessWidget {
     return GridView.builder(
       padding: const EdgeInsets.all(16.0),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        childAspectRatio: 0.6,
-        crossAxisSpacing: 16.0,
+        crossAxisCount: 4,
+        childAspectRatio: 0.55,
+        crossAxisSpacing: 12.0,
         mainAxisSpacing: 16.0,
       ),
       itemCount: shelfBooks.length,

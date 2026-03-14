@@ -12,7 +12,7 @@ class AppTheme {
         secondary: Color(0xFF81D4FA), // Sky Blue
         surface: Color(0xFFFFFFFF), // White cards
         surfaceContainerHighest: Color(0xFFF0EFE9), // Slightly darker panels
-        onSurface: Color(0xFF2D2D2D), // Deep charcoal text
+        onSurface: Color(0xFF111111), // Almost black for best contrast
       ),
       scaffoldBackgroundColor: const Color(
         0xFFF8F7F3,
@@ -21,22 +21,28 @@ class AppTheme {
           .copyWith(
             titleLarge: GoogleFonts.outfit(
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF2D2D2D),
+              color: const Color(0xFF111111),
+              fontSize: 24,
               letterSpacing: 0.5,
             ),
             titleMedium: GoogleFonts.outfit(
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF2D2D2D),
+              color: const Color(0xFF111111),
+              fontSize: 18,
             ),
-            bodyMedium: GoogleFonts.inter(color: const Color(0xFF555555)),
+            bodyMedium: GoogleFonts.inter(
+              color: const Color(0xFF333333),
+              fontSize: 16,
+            ),
             labelSmall: GoogleFonts.inter(
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF888888),
+              color: const Color(0xFF555555),
+              fontSize: 13,
             ),
           ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
-        foregroundColor: Color(0xFF2D2D2D),
+        foregroundColor: Color(0xFF111111),
         elevation: 0,
       ),
       cardTheme: CardThemeData(
