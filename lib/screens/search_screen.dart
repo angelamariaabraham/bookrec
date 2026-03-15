@@ -6,7 +6,6 @@ import '../models/book.dart';
 import '../providers/app_state.dart';
 import '../services/database_service.dart';
 import 'home_screen.dart';
-import 'category_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -115,21 +114,28 @@ class _SearchScreenState extends State<SearchScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 24.0,
-                vertical: 8.0,
+                vertical: 12.0,
               ),
               child: Container(
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(24),
+                  color: theme.colorScheme.surface.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(30),
                   border: Border.all(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.2),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                      blurRadius: 20,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
+                clipBehavior: Clip.antiAlias,
                 child: TextField(
                   controller: _searchController,
                   focusNode: _focusNode,
-                  autofocus:
-                      false, // Don't snap keyboard immediately to show UI
+                  autofocus: false,
                   textInputAction: TextInputAction.search,
                   onChanged: _onSearchChanged,
                   onSubmitted: (query) {
@@ -140,17 +146,22 @@ class _SearchScreenState extends State<SearchScreen> {
                   decoration: InputDecoration(
                     hintText: 'Search books, authors, genres...',
                     hintStyle: TextStyle(
-                      color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
+                      fontSize: 15,
                     ),
-                    prefixIcon: Icon(
-                      Icons.search_rounded,
-                      color: theme.colorScheme.primary,
+                    prefixIcon: Container(
+                      padding: const EdgeInsets.all(12),
+                      child: Icon(
+                        Icons.search_rounded,
+                        color: theme.colorScheme.primary,
+                        size: 22,
+                      ),
                     ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.close_rounded, size: 20),
                             color: theme.colorScheme.onSurface.withValues(
-                              alpha: 0.5,
+                              alpha: 0.4,
                             ),
                             onPressed: () {
                               _searchController.clear();
@@ -159,6 +170,8 @@ class _SearchScreenState extends State<SearchScreen> {
                           )
                         : null,
                     border: InputBorder.none,
+                    filled: true,
+                    fillColor: theme.colorScheme.surface.withValues(alpha: 0.5),
                     contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 16,
@@ -236,63 +249,49 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 120,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _buildGenreCard(
-                  'Fantasy',
-                  Icons.auto_awesome_rounded,
-                  Colors.blueAccent,
-                  theme,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Recent Searches',
+                style: GoogleFonts.outfit(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
                 ),
-                _buildGenreCard(
-                  'Sci-Fi',
-                  Icons.rocket_launch_rounded,
-                  Colors.purpleAccent,
-                  theme,
+              ),
+              if (recentSearches.isNotEmpty)
+                TextButton.icon(
+                  onPressed: () => context.read<AppState>().clearRecentSearches(),
+                  icon: const Icon(Icons.delete_sweep_rounded, size: 18),
+                  label: const Text('Clear All'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: theme.colorScheme.primary,
+                  ),
                 ),
-                _buildGenreCard(
-                  'Mystery',
-                  Icons.search_rounded,
-                  Colors.tealAccent,
-                  theme,
-                ),
-                _buildGenreCard(
-                  'Romance',
-                  Icons.favorite_rounded,
-                  Colors.pinkAccent,
-                  theme,
-                ),
-                _buildGenreCard(
-                  'Thriller',
-                  Icons.visibility_rounded,
-                  Colors.orangeAccent,
-                  theme,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            'Recent Searches',
-            style: GoogleFonts.outfit(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
+            ],
           ),
           const SizedBox(height: 16),
           if (recentSearches.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Text(
-                'No recent searches yet.',
-                style: GoogleFonts.inter(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
-                  fontStyle: FontStyle.italic,
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 60),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.search_rounded,
+                      size: 80,
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Search for your next favorite book',
+                      style: GoogleFonts.inter(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             )
@@ -365,82 +364,5 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget _buildGenreCard(
-    String label,
-    IconData icon,
-    Color color,
-    ThemeData theme,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CategoryScreen(category: label),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          width: 140,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [color.withValues(alpha: 0.8), color],
-            ),
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.3),
-                blurRadius: 12,
-                spreadRadius: 1,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Stack(
-            children: [
-              Positioned(
-                right: -10,
-                bottom: -10,
-                child: Icon(
-                  icon,
-                  size: 80,
-                  color: Colors.white.withValues(alpha: 0.15),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(icon, size: 20, color: Colors.white),
-                    ),
-                    Text(
-                      label,
-                      style: GoogleFonts.outfit(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+
 }

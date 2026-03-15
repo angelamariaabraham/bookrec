@@ -4,6 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../providers/app_state.dart';
 import 'home_screen.dart'; // To use BookCard
 import 'admin/admin_layout.dart';
+import 'edit_profile_screen.dart';
+import 'settings_screen.dart';
+import 'help_support_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -68,7 +71,15 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EditProfileScreen(),
+                          fullscreenDialog: true,
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.edit_outlined, size: 18),
                     label: const Text('Edit Profile'),
                     style: OutlinedButton.styleFrom(
@@ -433,13 +444,23 @@ class ProfileScreen extends StatelessWidget {
           icon: Icons.settings_rounded,
           title: 'Settings',
           theme: theme,
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const SettingsScreen()),
+            );
+          },
         ),
         _buildAccountItem(
           icon: Icons.help_outline_rounded,
           title: 'Help & Support',
           theme: theme,
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const HelpSupportScreen()),
+            );
+          },
         ),
         _buildAccountItem(
           icon: Icons.logout_rounded,

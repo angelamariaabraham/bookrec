@@ -89,36 +89,4 @@ class MinigamesService {
     };
   }
 
-  // --- Game 4: Timeline Tool ---
-  static Map<String, dynamic>? generateTimelineGame(List<Book> allBooks) {
-    final pool = _getPopularBooks(allBooks).where((b) {
-      if (b.publishDate == null) return false;
-      return double.tryParse(b.publishDate!) != null ||
-          b.publishDate!.contains(RegExp(r'\d{4}'));
-    }).toList();
-
-    final selection = _getRandomBooks(pool, 4);
-    if (selection.length < 4) return null;
-
-    // We don't need a single correct book, the goal is ordering all 4.
-    // Parse years to determine correct order
-    List<Map<String, dynamic>> items = selection.map((b) {
-      int year = 0;
-      // Very basic extraction of 4 digits
-      var match = RegExp(r'\d{4}').firstMatch(b.publishDate ?? '');
-      if (match != null) {
-        year = int.tryParse(match.group(0) ?? '0') ?? 0;
-      }
-      return {'book': b, 'year': year};
-    }).toList();
-
-    // Sort to find correct order
-    var sorted = items.toList()
-      ..sort((a, b) => (a['year'] as int).compareTo(b['year'] as int));
-
-    return {
-      'items': items, // Currently random order
-      'correct_order_ids': sorted.map((e) => (e['book'] as Book).id).toList(),
-    };
-  }
 }

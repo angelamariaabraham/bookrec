@@ -24,14 +24,14 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 2,
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
   }
 
   Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < 2) {
+    if (oldVersion < 4) {
       // Drop the old table and recreate to re-seed from the fixed JSON
       await db.execute('DROP TABLE IF EXISTS books');
       await _createDB(db, newVersion);
@@ -133,6 +133,10 @@ class DatabaseService {
   }
 
   Future<List<Book>> getBooksByCategory(String category) async {
+    if (category.toLowerCase() == 'all') {
+      return getAllBooks();
+    }
+
     if (category.toLowerCase() == 'all') {
       return getAllBooks();
     }

@@ -51,9 +51,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
           : GridView.builder(
               padding: const EdgeInsets.all(16.0),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                childAspectRatio: 0.55,
-                crossAxisSpacing: 12.0,
+                crossAxisCount: 6,
+                childAspectRatio: 0.5,
+                crossAxisSpacing: 10.0,
                 mainAxisSpacing: 16.0,
               ),
               itemCount: _books.length,

@@ -21,6 +21,7 @@ class AppState with ChangeNotifier {
   bool _isAdmin = false;
   DateTime? _lastActiveDate;
   int _yearlyReadingGoal = 50;
+  int? _dismissedAnnouncementTimestamp;
 
   final AuthService _auth = AuthService();
   final FirestoreService _firestore = FirestoreService();
@@ -64,6 +65,7 @@ class AppState with ChangeNotifier {
         if (profile != null) {
           _isAdmin = profile.role == 'admin';
         }
+        await _loadUserScopedPrefs(uid);
       }
     }
 
@@ -80,7 +82,7 @@ class AppState with ChangeNotifier {
         }
       }
 
-      // Load streak and goal
+      // Load global streak and goal
       _streakCount = prefs.getInt('streakCount') ?? 0;
       _yearlyReadingGoal = prefs.getInt('yearlyReadingGoal') ?? 50;
       final lastActiveStr = prefs.getString('lastActiveDate');
@@ -108,6 +110,14 @@ class AppState with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> _loadUserScopedPrefs(String uid) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _dismissedAnnouncementTimestamp = prefs.getInt('dismissedAnnouncementTimestamp_$uid');
+      // Potential for other per-user prefs here
+    } catch (_) {}
   }
 
   void _updateStreak() async {
@@ -170,20 +180,33 @@ class AppState with ChangeNotifier {
       if (uid != null) {
         UserModel? profile = await _firestore.getUserProfile(uid);
         if (profile == null) {
+          // Derive a better default name from email if name is missing
+          String defaultName = _userName ?? 'User';
+          if (defaultName.toLowerCase() == 'user' || defaultName.isEmpty) {
+            final part = email.split('@')[0];
+            final clean = part.replaceAll(RegExp(r'[0-9\.]'), ' ').trim();
+            defaultName = clean.isNotEmpty 
+              ? clean.split(' ').map((s) => s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : '').join(' ').trim()
+              : part[0].toUpperCase() + part.substring(1);
+          }
+
           // Create default profile for legacy users
           profile = UserModel(
             uid: uid,
-            name: _userName ?? 'User',
+            name: defaultName,
             email: email,
             role: 'user',
           );
           await _firestore.saveUserProfile(profile);
+          _userName = defaultName;
         }
         _isAdmin = profile.role == 'admin';
+        await _loadUserScopedPrefs(uid);
       }
 
       _setupShelfListener();
       _setupProfileListener();
+      _setupAnnouncementListener();
       notifyListeners();
     }
     return status;
@@ -209,10 +232,12 @@ class AppState with ChangeNotifier {
         );
         await _firestore.saveUserProfile(profile);
         _isAdmin = false;
+        await _loadUserScopedPrefs(uid);
       }
 
       _setupShelfListener();
       _setupProfileListener();
+      _setupAnnouncementListener();
       notifyListeners();
     }
     return status;
@@ -223,9 +248,11 @@ class AppState with ChangeNotifier {
     _isLoggedIn = false;
     _userName = null;
     _isAdmin = false;
+    _dismissedAnnouncementTimestamp = null;
     _shelfSubscription?.cancel();
     _profileSubscription?.cancel();
     _userShelf.clear();
+    _setupAnnouncementListener();
     notifyListeners();
   }
 
@@ -270,6 +297,12 @@ class AppState with ChangeNotifier {
 
   void removeRecentSearch(String query) {
     _recentSearches.remove(query);
+    _saveRecentSearches();
+    notifyListeners();
+  }
+
+  void clearRecentSearches() {
+    _recentSearches.clear();
     _saveRecentSearches();
     notifyListeners();
   }
@@ -350,16 +383,64 @@ class AppState with ChangeNotifier {
     return MinigamesService.generateSentenceDecryptionGame(_books);
   }
 
-  Map<dynamic, dynamic>? getTimelineGame() {
-    return MinigamesService.generateTimelineGame(_books);
+  Future<void> updateUserProfile({required String name}) async {
+    final uid = _auth.getUserId();
+    if (uid == null) return;
+
+    // Get current profile to preserve other fields like role/email
+    final currentProfile = await _firestore.getUserProfile(uid);
+    if (currentProfile == null) return;
+
+    final updatedProfile = UserModel(
+      uid: uid,
+      name: name,
+      email: currentProfile.email,
+      role: currentProfile.role,
+    );
+
+    await _firestore.saveUserProfile(updatedProfile);
+    _userName = name;
+    notifyListeners();
   }
+
+  Future<void> updateReadingGoal(int goal) async {
+    _yearlyReadingGoal = goal;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('yearlyReadingGoal', goal);
+    } catch (_) {}
+    notifyListeners();
+  }
+
 
   void _setupAnnouncementListener() {
     _announcementSubscription?.cancel();
     _announcementSubscription = _firestore.getGlobalAnnouncement().listen((data) {
-      _currentAnnouncement = data;
+      if (data != null && data['timestamp'] != null) {
+        final timestamp = data['timestamp'] as int;
+        if (_dismissedAnnouncementTimestamp != null && timestamp <= _dismissedAnnouncementTimestamp!) {
+          _currentAnnouncement = null;
+        } else {
+          _currentAnnouncement = data;
+        }
+      } else {
+        _currentAnnouncement = data;
+      }
       notifyListeners();
     });
+  }
+
+  Future<void> dismissAnnouncement(int timestamp) async {
+    _dismissedAnnouncementTimestamp = timestamp;
+    _currentAnnouncement = null;
+    notifyListeners();
+
+    try {
+      final uid = _auth.getUserId();
+      final key = uid != null ? 'dismissedAnnouncementTimestamp_$uid' : 'dismissedAnnouncementTimestamp_guest';
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt(key, timestamp);
+    } catch (_) {}
   }
 
   @override

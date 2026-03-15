@@ -12,7 +12,15 @@ class UserManagementScreen extends StatefulWidget {
 
 class _UserManagementScreenState extends State<UserManagementScreen> {
   List<UserModel>? _users;
+  List<UserModel>? _filteredUsers;
   bool _isLoading = true;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -25,7 +33,19 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     final users = await firestore.getAllUsers();
     setState(() {
       _users = users;
+      _filteredUsers = users;
       _isLoading = false;
+    });
+  }
+
+  void _filterUsers(String query) {
+    if (_users == null) return;
+    setState(() {
+      _filteredUsers = _users!
+          .where((u) =>
+              u.displayName.toLowerCase().contains(query.toLowerCase()) ||
+              u.email.toLowerCase().contains(query.toLowerCase()))
+          .toList();
     });
   }
 
@@ -39,20 +59,116 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
           'User Management',
           style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
         ),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _users == null || _users!.isEmpty
-              ? const Center(child: Text('No users found.'))
-              : ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _users!.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, index) {
-                    final user = _users![index];
-                    return _buildUserCard(user, theme);
-                  },
+        actions: [
+          if (_users != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Center(
+                child: Text(
+                  '${_users!.length} Total',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+              ),
+            ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Glassmorphic Search Bar
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withValues(alpha: 0.05),
+                    blurRadius: 15,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: TextField(
+                controller: _searchController,
+                onChanged: _filterUsers,
+                decoration: InputDecoration(
+                  hintText: 'Search by name or email...',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: _searchController.text.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded),
+                          onPressed: () {
+                            _searchController.clear();
+                            _filterUsers('');
+                          },
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: theme.colorScheme.surface,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.outline.withValues(alpha: 0.05),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    borderSide: BorderSide(color: theme.colorScheme.primary),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 16,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _filteredUsers == null || _filteredUsers!.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.person_search_rounded,
+                              size: 64,
+                              color: theme.colorScheme.outline.withValues(
+                                alpha: 0.2,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No users found.',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: theme.colorScheme.outline,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                        itemCount: _filteredUsers!.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          final user = _filteredUsers![index];
+                          return _buildUserCard(user, theme);
+                        },
+                      ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -68,12 +184,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
           child: Text(
-            user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
+            user.displayName.isNotEmpty ? user.displayName[0].toUpperCase() : 'U',
             style: TextStyle(color: theme.colorScheme.primary, fontWeight: FontWeight.bold),
           ),
         ),
         title: Text(
-          user.name,
+          user.displayName,
           style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(user.email),
@@ -101,6 +217,15 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               onPressed: () => _showRoleManagementDialog(user),
               tooltip: 'Manage Role',
             ),
+            IconButton(
+              icon: Icon(
+                Icons.delete_outline_rounded,
+                size: 20,
+                color: Colors.red[300],
+              ),
+              onPressed: () => _showDeleteUserDialog(user),
+              tooltip: 'Delete User',
+            ),
           ],
         ),
         onTap: () {
@@ -121,7 +246,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Manage User Role'),
-        content: Text('What role would you like to assign to ${user.name}?'),
+        content: Text('What role would you like to assign to ${user.displayName}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -151,6 +276,59 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
               child: const Text('Promote to ADMIN'),
             ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteUserDialog(UserModel user) {
+    final firestore = FirestoreService();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+            const SizedBox(width: 12),
+            const Text('Delete Account'),
+          ],
+        ),
+        content: Text(
+          'Are you sure you want to permanently delete the account for ${user.displayName}?\n\nThis action cannot be undone and will remove all their data.',
+          style: const TextStyle(height: 1.5),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Theme.of(context).colorScheme.outline),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await firestore.deleteUser(user.uid);
+              if (mounted) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('User ${user.displayName} deleted.'),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+                _fetchUsers();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Delete Permanently'),
+          ),
         ],
       ),
     );

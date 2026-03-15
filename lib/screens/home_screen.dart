@@ -6,8 +6,21 @@ import '../models/book.dart';
 import 'book_details_screen.dart';
 import 'category_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final ScrollController _featuredScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _featuredScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +31,22 @@ class HomeScreen extends StatelessWidget {
 
     return Scaffold(
       drawer: const AppDrawer(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.pushNamed(context, '/minigames'),
+        icon: const Icon(Icons.gamepad_rounded),
+        label: const Text('Minigames'),
+        backgroundColor: theme.colorScheme.primary,
+        foregroundColor: Colors.white,
+      ),
       body: SafeArea(
         child: Column(
           children: [
             if (announcement != null)
               AnnouncementBanner(
-                key: ValueKey(announcement['text'] ?? ''),
+                key: ValueKey(announcement['timestamp'] ?? announcement['text']),
                 text: announcement['text'] ?? '',
                 type: announcement['type'] ?? 'info',
+                timestamp: announcement['timestamp'] as int? ?? 0,
               ),
             Expanded(
               child: CustomScrollView(
@@ -44,130 +65,113 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
-                    actions: const [],
                   ),
                   SliverToBoxAdapter(
                     child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24.0,
-                  vertical: 8.0,
-                ),
-                child: TextField(
-                  readOnly: true,
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    Navigator.pushNamed(context, '/search');
-                  },
-                  decoration: const InputDecoration(
-                    hintText: 'Search books, authors...',
-                    prefixIcon: Icon(Icons.search_rounded),
-                    suffixIcon: Icon(Icons.tune_rounded), // Filter icon
-                  ),
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 24.0,
-                  left: 24.0,
-                  bottom: 8.0,
-                ),
-                child: Text('Explore', style: theme.textTheme.titleLarge),
-              ),
-            ),
-            const SliverToBoxAdapter(child: CategoryRow()),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 32.0,
-                  left: 24.0,
-                  bottom: 16.0,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Hidden Gems & Classics',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 24.0),
-                      child: TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          foregroundColor: theme.colorScheme.primary,
-                        ),
-                        child: const Text(
-                          'View All',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 8.0,
+                      ),
+                      child: TextField(
+                        readOnly: true,
+                        onTap: () {
+                          FocusScope.of(context).unfocus();
+                          Navigator.pushNamed(context, '/search');
+                        },
+                        decoration: const InputDecoration(
+                          hintText: 'Search books, authors...',
+                          prefixIcon: Icon(Icons.search_rounded),
+                          suffixIcon: Icon(Icons.tune_rounded),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 24.0,
+                        left: 24.0,
+                        bottom: 8.0,
+                      ),
+                      child: Text('Explore', style: theme.textTheme.titleLarge),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: CategoryRow()),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 32.0,
+                        left: 24.0,
+                        bottom: 16.0,
+                      ),
+                      child: Text(
+                        'Hidden Gems & Classics',
+                        style: theme.textTheme.titleLarge,
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 335,
+                      child: Scrollbar(
+                        controller: _featuredScrollController,
+                        thumbVisibility: true,
+                        thickness: 4,
+                        radius: const Radius.circular(8),
+                        child: ListView.builder(
+                          controller: _featuredScrollController,
+                          padding: const EdgeInsets.only(
+                            left: 16.0,
+                            right: 16.0,
+                            bottom: 12.0,
+                          ),
+                          scrollDirection: Axis.horizontal,
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: featuredBooks.take(30).length,
+                          itemBuilder: (context, index) {
+                            final book = featuredBooks[index];
+                            return BookCard(book: book);
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(
+                        top: 32.0,
+                        left: 24.0,
+                        bottom: 16.0,
+                      ),
+                      child: Text(
+                        'Curated For You',
+                        style: theme.textTheme.titleLarge,
+                      ),
+                    ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    sliver: SliverGrid(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 6,
+                        childAspectRatio: 0.5,
+                        crossAxisSpacing: 10.0,
+                        mainAxisSpacing: 16.0,
+                      ),
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final book = state.books.length > index + 10 
+                          ? state.books[index + 10] 
+                          : state.books[index % state.books.length];
+                        return BookCard(book: book);
+                      }, childCount: 18),
+                    ),
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                ],
               ),
             ),
-            SliverToBoxAdapter(
-              child: SizedBox(
-                height: 320,
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  scrollDirection: Axis.horizontal,
-                  itemCount: featuredBooks.take(10).length,
-                  itemBuilder: (context, index) {
-                    final book = featuredBooks[index];
-                    return BookCard(book: book);
-                  },
-                ),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 32.0,
-                  left: 24.0,
-                  bottom: 16.0,
-                ),
-                child: Text(
-                  'Curated For You',
-                  style: theme.textTheme.titleLarge,
-                ),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  childAspectRatio: 0.55,
-                  crossAxisSpacing: 12.0,
-                  mainAxisSpacing: 16.0,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final book = state.books[index + 10];
-                  return BookCard(book: book);
-                }, childCount: 15),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
-      ),
-    ],
-  ),
-),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.pushNamed(context, '/minigames'),
-        label: const Text(
-          'Minigames',
-          style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 0.5),
-        ),
-        icon: const Icon(Icons.gamepad_rounded),
-        backgroundColor: theme.colorScheme.primary,
-        foregroundColor: Colors.white,
-        elevation: 8,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
     );
   }
@@ -251,21 +255,34 @@ class BookCard extends StatelessWidget {
   }
 }
 
-class CategoryRow extends StatelessWidget {
+class CategoryRow extends StatefulWidget {
   const CategoryRow({super.key});
+
+  @override
+  State<CategoryRow> createState() => _CategoryRowState();
+}
+
+class _CategoryRowState extends State<CategoryRow> {
+  final ScrollController _categoryScrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _categoryScrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final categories = [
       {
-        'icon': Icons.auto_awesome_rounded,
-        'label': 'Fantasy',
-        'color': Colors.blueAccent,
+        'icon': Icons.library_books_rounded,
+        'label': 'All',
+        'color': Colors.blueGrey,
       },
       {
-        'icon': Icons.rocket_launch_rounded,
-        'label': 'Sci-Fi',
-        'color': Colors.purpleAccent,
+        'icon': Icons.menu_book_rounded,
+        'label': 'Fiction',
+        'color': Colors.indigoAccent,
       },
       {
         'icon': Icons.search_rounded,
@@ -285,89 +302,101 @@ class CategoryRow extends StatelessWidget {
     ];
 
     return SizedBox(
-      height: 120,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          final color = cat['color'] as Color;
-          final icon = cat['icon'] as IconData;
-          final label = cat['label'] as String;
+      height: 135, // Increased slightly for scrollbar
+      child: Scrollbar(
+        controller: _categoryScrollController,
+        thumbVisibility: true,
+        thickness: 4,
+        radius: const Radius.circular(8),
+        child: ListView.builder(
+          controller: _categoryScrollController,
+          padding: const EdgeInsets.only(
+            left: 24.0,
+            right: 24.0,
+            bottom: 12.0, // Space for scrollbar
+          ),
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            final cat = categories[index];
+            final color = cat['color'] as Color;
+            final icon = cat['icon'] as IconData;
+            final label = cat['label'] as String;
 
-          return Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CategoryScreen(category: label),
-                  ),
-                );
-              },
-              borderRadius: BorderRadius.circular(24),
-              child: Container(
-                width: 140,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [color.withValues(alpha: 0.8), color],
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      spreadRadius: 1,
-                      offset: const Offset(0, 4),
+            return Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CategoryScreen(category: label),
                     ),
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: -10,
-                      bottom: -10,
-                      child: Icon(
-                        icon,
-                        size: 80,
-                        color: Colors.white.withValues(alpha: 0.15),
+                  );
+                },
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  width: 140,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [color.withValues(alpha: 0.8), color],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.3),
+                        blurRadius: 12,
+                        spreadRadius: 1,
+                        offset: const Offset(0, 4),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Icon(icon, size: 20, color: Colors.white),
-                          ),
-                          Text(
-                            label,
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                    ],
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        right: -10,
+                        bottom: -10,
+                        child: Icon(
+                          icon,
+                          size: 80,
+                          color: Colors.white.withValues(alpha: 0.15),
+                        ),
                       ),
-                    ),
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(icon, size: 20, color: Colors.white),
+                            ),
+                            Text(
+                              label,
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
@@ -454,11 +483,13 @@ class AppDrawer extends StatelessWidget {
 class AnnouncementBanner extends StatefulWidget {
   final String text;
   final String type;
+  final int timestamp;
 
   const AnnouncementBanner({
     super.key,
     required this.text,
     required this.type,
+    required this.timestamp,
   });
 
   @override
@@ -520,7 +551,10 @@ class _AnnouncementBannerState extends State<AnnouncementBanner> {
           ),
           IconButton(
             icon: Icon(Icons.close_rounded, color: color, size: 18),
-            onPressed: () => setState(() => _isDismissed = true),
+            onPressed: () {
+              setState(() => _isDismissed = true);
+              context.read<AppState>().dismissAnnouncement(widget.timestamp);
+            },
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
             tooltip: 'Dismiss',

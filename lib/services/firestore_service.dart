@@ -67,6 +67,22 @@ class UserModel {
     );
   }
 
+  String get displayName {
+    if (name.isNotEmpty && name.toLowerCase() != 'user') {
+      return name;
+    }
+    if (email.contains('@')) {
+      final part = email.split('@')[0];
+      // Capitalize first letter and handle numbers/dots
+      final clean = part.replaceAll(RegExp(r'[0-9\.]'), ' ').trim();
+      if (clean.isNotEmpty) {
+        return clean.split(' ').map((s) => s.isNotEmpty ? s[0].toUpperCase() + s.substring(1) : '').join(' ').trim();
+      }
+      return part[0].toUpperCase() + part.substring(1);
+    }
+    return name.isNotEmpty ? name : 'User';
+  }
+
   Map<String, dynamic> toMap() {
     return {
       'name': name,
@@ -256,6 +272,10 @@ class FirestoreService {
 
   Future<void> updateUserRole(String uid, String newRole) async {
     await _db.ref('users/$uid/profile').update({'role': newRole});
+  }
+
+  Future<void> deleteUser(String uid) async {
+    await _db.ref('users/$uid').remove();
   }
 
   Future<void> setGlobalAnnouncement(String text, String type) async {

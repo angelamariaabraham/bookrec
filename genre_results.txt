@@ -1,0 +1,7 @@
+Total books analyzed: 1959
+Books with both Fantasy and Sci-Fi: 392
+Books with only Fantasy: 515
+Books with only Science Fiction: 24
+
+Only Fantasy Examples: ['Twilight', 'The Giving Tree', 'The Picture of Dorian Gray', "Alice's Adventures in Wonderland & Through the Looking-Glass", 'The Alchemist']
+Only Sci-Fi Examples: ['A Clockwork Orange', 'The Road', 'Atlas Shrugged', 'Flowers for Algernon', 'Blindness']

@@ -11,7 +11,6 @@ import 'screens/my_shelf_screen.dart';
 import 'screens/main_layout.dart';
 import 'screens/games/cover_reveal_screen.dart';
 import 'screens/games/sentence_decryption_screen.dart';
-import 'screens/games/timeline_screen.dart';
 import 'models/book.dart';
 import 'providers/app_state.dart';
 import 'theme/app_theme.dart';
@@ -65,7 +64,6 @@ class BookFusionApp extends StatelessWidget {
         '/minigames': (context) => const MinigamesScreen(),
         '/minigames/cover_reveal': (context) => const CoverRevealScreen(),
         '/minigames/decryption': (context) => const SentenceDecryptionScreen(),
-        '/minigames/timeline': (context) => const TimelineScreen(),
       },
     );
   }

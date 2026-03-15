@@ -76,39 +76,42 @@ class MinigamesScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.all(24.0),
-                sliver: SliverGrid.count(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 20,
-                  childAspectRatio: 0.85,
-                  children: [
-                    _buildGameCard(
-                      context,
-                      title: 'Cover Reveal',
-                      subtitle: 'Guess the blurred cover',
-                      icon: Icons.visibility,
-                      color: Colors.purpleAccent,
-                      route: '/minigames/cover_reveal',
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40.0),
+                  child: Center(
+                    child: Wrap(
+                      spacing: 32,
+                      runSpacing: 32,
+                      alignment: WrapAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 280,
+                          height: 280,
+                          child: _buildGameCard(
+                            context,
+                            title: 'Cover Reveal',
+                            subtitle: 'Guess the blurred cover artwork',
+                            icon: Icons.visibility_rounded,
+                            color: Colors.purpleAccent,
+                            route: '/minigames/cover_reveal',
+                          ),
+                        ),
+                        SizedBox(
+                          width: 280,
+                          height: 280,
+                          child: _buildGameCard(
+                            context,
+                            title: 'Decryption',
+                            subtitle: 'Decode the secret book quotes',
+                            icon: Icons.password_rounded,
+                            color: Colors.orangeAccent,
+                            route: '/minigames/decryption',
+                          ),
+                        ),
+                      ],
                     ),
-                    _buildGameCard(
-                      context,
-                      title: 'Decryption',
-                      subtitle: 'Sentence by sentence',
-                      icon: Icons.password,
-                      color: Colors.orangeAccent,
-                      route: '/minigames/decryption',
-                    ),
-                    _buildGameCard(
-                      context,
-                      title: 'Timeline',
-                      subtitle: 'Sort by release date',
-                      icon: Icons.timeline,
-                      color: Colors.greenAccent,
-                      route: '/minigames/timeline',
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ],
