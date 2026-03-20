@@ -9,6 +9,18 @@ A cross-platform mobile app that transforms book discovery using an on-device TF
 
 ---
 
+## 📸 Screenshots
+
+| Login | Home | Search |
+|-------|------|--------|
+| ![Login](screenshots/screen1_login.png) | ![Home](screenshots/screen2_home.png) | ![Search](screenshots/screen3_search.png) |
+
+| My Shelf | Profile Stats | Badges |
+|----------|--------------|--------|
+| ![Shelf](screenshots/screen8_shelf_read.png) | ![Profile](screenshots/screen6_profile_stats.png) | ![Badges](screenshots/screen7_profile_badges.png) |
+
+---
+
 ## About
 
 BookRec goes beyond static lists and rating-based suggestions. Instead of matching genre tags or cover popularity, it analyses the *prose* of book descriptions using NLP to surface books that genuinely match a reader's taste — all without sending any data to an external server.
@@ -22,12 +34,13 @@ BookRec goes beyond static lists and rating-based suggestions. Instead of matchi
 - **Sentence Decryption** — A unique discovery method that challenges you to identify books from prose and writing style, creating a deeper connection to the material.
 
 ###  Intelligent Recommendations
-- **On-Device TF-IDF Engine** — Uses a custom-built Term Frequency-Inverse Document Frequency (TF-IDF) and Cosine Similarity algorithm to match books based on thematic content and plot descriptions.
+- **On-Device TF-IDF Engine** — Uses a custom-built TF-IDF and Cosine Similarity algorithm to match books based on thematic content and plot descriptions.
 - **Privacy-First** — All recommendation logic runs locally on your device. No reading data ever leaves the device, ensuring fast performance and superior data privacy.
 
 ###  Premium UI/UX
-- Dribbble-inspired design with soft purple and blue palettes.
-- Custom squircle shapes, micro-interactions, and smooth transitions for a high-end feel.
+- Dribbble-inspired design with a clean blue and white palette.
+- Reading stats, badges & achievements system, Top Shelf profile view.
+- Custom squircle shapes and smooth transitions for a high-end feel.
 
 ###  Advanced Data Pipeline
 A comprehensive Python-based data engineering suite used to clean, validate, and normalise a **10,000-book dataset**, ensuring high-quality metadata and imagery.
@@ -46,13 +59,6 @@ A comprehensive Python-based data engineering suite used to clean, validate, and
 | Data Pipeline | `Python` | Dataset cleaning, filtering & validation |
 
 ---
-
-##  Getting Started
-
-### Prerequisites
-- Flutter SDK (v3.10.7+)
-- Dart SDK
-- Python 3.x (for data pipeline scripts)
 
 ##  Project Architecture
 ```
@@ -74,8 +80,6 @@ lib/
 
 ##  Data Processing Pipeline
 
-The repository includes a full suite of Python utilities used for dataset preparation:
-
 | Script | Purpose |
 |--------|---------|
 | `analyze_dataset.py` | Exploratory analysis of the raw book dataset |
@@ -90,6 +94,6 @@ The repository includes a full suite of Python utilities used for dataset prepar
 | `validate_dataset.py` | Ensures structural integrity and data completeness |
 | `eval_recommender.py` | Evaluates recommendation quality on sample inputs |
 
----
+
 
 
