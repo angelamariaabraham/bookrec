@@ -17,7 +17,7 @@ A cross-platform mobile app that transforms book discovery using an on-device TF
 
 | My Shelf | Profile Stats | Badges |
 |----------|--------------|--------|
-| ![Shelf](screenshots/screen8_shelf_read.png) | ![Profile](screenshots/screen6_profile_stats.png) | ![Badges](screenshots/screen7_profile_badges.png) |
+| ![Shelf](screenshots/screen4_shelf_read.png) | ![Profile](screenshots/screen6_profile_stats.png) | ![Badges](screenshots/screen7_profile_badges.png) |
 
 ---
 
